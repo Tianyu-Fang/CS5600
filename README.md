@@ -1,6 +1,6 @@
 # CS5600 Homework
 
-# HomeWork 1 
+# Homework 1 
 ## Question1
 (base) tianyu@Tianyus-MBP ~ % cd Downloads
 (base) tianyu@Tianyus-MBP Downloads % python3 process-run.py -l 5:100,5:100 -c -p
