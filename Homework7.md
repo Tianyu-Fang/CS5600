@@ -558,3 +558,125 @@ For each successful lookup, a total of 3 memory references are needed:
 Frequently accessed page table entries will be cached, leading to cache hits, while accesses that require many unique page table entries will result in cache misses and slower access times. Thus, the behavior depends largely on the access pattern and working set size of the program.
 
 # Chapter 21
+
+**Question 1**
+The user time increase and the idle time decrease. 
+
+Yes
+
+Run ./mem 1 & ./mem 1 &, the user time doubled.
+
+**Question 2**
+The free column increase when the program start to run then decrease when program exits. Yes.
+
+**Question 3**
+Yes. The amount of memory swapped to disk increase in first loop, then become zero.
+
+**Quesiton 4**
+User time and blocks sent to a block device both increase.
+
+**Question 6**
+90% of total memory plus total swap.
+
+# Chapter 22
+**Questino 1**
+```
+./paging-policy.py -s 0 -n 10 -c
+./paging-policy.py -s 0 -n 10 -c --policy=LRU
+./paging-policy.py -s 0 -n 10 -c --policy=OPT
+```
+
+**Question 2**
+
+1
+```
+./paging-policy.py --addresses=0,1,2,3,4,5,0,1,2,3,4,5 --policy=FIFO --cachesize=5 -c
+./paging-policy.py --addresses=0,1,2,3,4,5,0,1,2,3,4,5 --policy=LRU --cachesize=5 -c
+./paging-policy.py --addresses=0,1,2,3,4,5,4,5,4,5,4,5 --policy=MRU --cachesize=5 -c
+```
+
+**Question 3**
+```
+./paging-policy.py -s 0 -n 10 -c
+FINALSTATS hits 1   misses 9   hitrate 10.00
+
+./paging-policy.py -s 0 -n 10 -c --policy=LRU
+FINALSTATS hits 2   misses 8   hitrate 20.00
+
+./paging-policy.py -s 0 -n 10 -c --policy=OPT
+FINALSTATS hits 4   misses 6   hitrate 40.00
+
+./paging-policy.py -s 0 -n 10 -c --policy=UNOPT
+FINALSTATS hits 0   misses 10   hitrate 0.00
+
+./paging-policy.py -s 0 -n 10 -c --policy=RAND
+FINALSTATS hits 0   misses 10   hitrate 0.00
+
+./paging-policy.py -s 0 -n 10 -c --policy=CLOCK
+FINALSTATS hits 1   misses 9   hitrate 10.00
+```
+
+**Question 4**
+```
+$ ./generate-trace.py
+[3, 0, 6, 6, 6, 6, 7, 0, 6, 6]
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=LRU -c
+FINALSTATS hits 6   misses 4   hitrate 60.00
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=RAND -c
+FINALSTATS hits 5   misses 5   hitrate 50.00
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=CLOCK -c -b 2
+Access: 3  MISS Left  ->          [3] <- Right Replaced:- [Hits:0 Misses:1]
+Access: 0  MISS Left  ->       [3, 0] <- Right Replaced:- [Hits:0 Misses:2]
+Access: 6  MISS Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:0 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:1 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:2 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:3 Misses:3]
+Access: 7  MISS Left  ->    [3, 6, 7] <- Right Replaced:0 [Hits:3 Misses:4]
+Access: 0  MISS Left  ->    [3, 7, 0] <- Right Replaced:6 [Hits:3 Misses:5]
+Access: 6  MISS Left  ->    [7, 0, 6] <- Right Replaced:3 [Hits:3 Misses:6]
+Access: 6  HIT  Left  ->    [7, 0, 6] <- Right Replaced:- [Hits:4 Misses:6]
+FINALSTATS hits 4   misses 6   hitrate 40.00
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=CLOCK -c -b 0
+Access: 3  MISS Left  ->          [3] <- Right Replaced:- [Hits:0 Misses:1]
+Access: 0  MISS Left  ->       [3, 0] <- Right Replaced:- [Hits:0 Misses:2]
+Access: 6  MISS Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:0 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:1 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:2 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:3 Misses:3]
+Access: 7  MISS Left  ->    [3, 0, 7] <- Right Replaced:6 [Hits:3 Misses:4]
+Access: 0  HIT  Left  ->    [3, 0, 7] <- Right Replaced:- [Hits:4 Misses:4]
+Access: 6  MISS Left  ->    [3, 7, 6] <- Right Replaced:0 [Hits:4 Misses:5]
+Access: 6  HIT  Left  ->    [3, 7, 6] <- Right Replaced:- [Hits:5 Misses:5]
+FINALSTATS hits 5   misses 5   hitrate 50.00
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=CLOCK -c -b 1
+Access: 3  MISS Left  ->          [3] <- Right Replaced:- [Hits:0 Misses:1]
+Access: 0  MISS Left  ->       [3, 0] <- Right Replaced:- [Hits:0 Misses:2]
+Access: 6  MISS Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:0 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:1 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:2 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:3 Misses:3]
+Access: 7  MISS Left  ->    [3, 0, 7] <- Right Replaced:6 [Hits:3 Misses:4]
+Access: 0  HIT  Left  ->    [3, 0, 7] <- Right Replaced:- [Hits:4 Misses:4]
+Access: 6  MISS Left  ->    [3, 7, 6] <- Right Replaced:0 [Hits:4 Misses:5]
+Access: 6  HIT  Left  ->    [3, 7, 6] <- Right Replaced:- [Hits:5 Misses:5]
+FINALSTATS hits 5   misses 5   hitrate 50.00
+
+$ ./paging-policy.py --addresses=3,0,6,6,6,6,7,0,6,6 --policy=CLOCK -c -b 3
+Access: 0  MISS Left  ->       [3, 0] <- Right Replaced:- [Hits:0 Misses:2]
+Access: 6  MISS Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:0 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:1 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:2 Misses:3]
+Access: 6  HIT  Left  ->    [3, 0, 6] <- Right Replaced:- [Hits:3 Misses:3]
+Access: 7  MISS Left  ->    [3, 6, 7] <- Right Replaced:0 [Hits:3 Misses:4]
+Access: 0  MISS Left  ->    [6, 7, 0] <- Right Replaced:3 [Hits:3 Misses:5]
+Access: 6  HIT  Left  ->    [6, 7, 0] <- Right Replaced:- [Hits:4 Misses:5]
+Access: 6  HIT  Left  ->    [6, 7, 0] <- Right Replaced:- [Hits:5 Misses:5]
+FINALSTATS hits 5   misses 5   hitrate 50.00
+```
+
+
